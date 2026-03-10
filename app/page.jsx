@@ -31,7 +31,7 @@ function parseIdeas(text) {
     };
     const titleLine = block.match(/IDEA\s*\d+[:\s–-]+(.+?)(?:\n|$)/i);
     return {
-      id: `idea-${i}`,
+      id: `idea-${Date.now()}-${i}`,
       title: titleLine ? titleLine[1].trim() : `Idea ${i + 1}`,
       tagline: get("Tagline"),
       problema: get("Problema"),
@@ -105,10 +105,8 @@ function IdeaChat({ idea }) {
     setInput("");
     setStreaming(true);
     setCurrentReply("");
-
     const newHistory = [...history, { role: "user", content: question }];
     setHistory(newHistory);
-
     let reply = "";
     try {
       await streamFromRoute("/api/chat", { idea, history, question }, chunk => {
@@ -127,18 +125,14 @@ function IdeaChat({ idea }) {
   return (
     <div style={{ marginTop: "20px", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "16px" }}>
       <div style={{ fontSize: "9px", fontFamily: "'IBM Plex Mono', monospace", color: "rgba(99,202,183,0.5)", letterSpacing: "0.14em", marginBottom: "12px" }}>💬 CHAT SULL'IDEA</div>
-
-      {/* History */}
       {history.length > 0 && (
         <div style={{ marginBottom: "12px", display: "flex", flexDirection: "column", gap: "8px", maxHeight: "300px", overflowY: "auto" }}>
           {history.map((m, i) => (
             <div key={i} style={{
-              padding: "10px 14px",
-              borderRadius: "8px",
+              padding: "10px 14px", borderRadius: "8px",
               background: m.role === "user" ? "rgba(234,179,8,0.06)" : "rgba(255,255,255,0.03)",
               border: m.role === "user" ? "1px solid rgba(234,179,8,0.15)" : "1px solid rgba(255,255,255,0.05)",
-              alignSelf: m.role === "user" ? "flex-end" : "flex-start",
-              maxWidth: "90%",
+              alignSelf: m.role === "user" ? "flex-end" : "flex-start", maxWidth: "90%",
             }}>
               <div style={{ fontSize: "9px", fontFamily: "'IBM Plex Mono', monospace", color: m.role === "user" ? "rgba(234,179,8,0.5)" : "rgba(99,202,183,0.5)", marginBottom: "4px" }}>
                 {m.role === "user" ? "TU" : "ADVISOR"}
@@ -157,8 +151,6 @@ function IdeaChat({ idea }) {
           <div ref={bottomRef} />
         </div>
       )}
-
-      {/* Input */}
       <div style={{ display: "flex", gap: "8px" }}>
         <input
           value={input}
@@ -168,25 +160,17 @@ function IdeaChat({ idea }) {
           disabled={streaming}
           style={{
             flex: 1, padding: "10px 14px", borderRadius: "8px",
-            border: "1px solid rgba(255,255,255,0.1)",
-            background: "rgba(255,255,255,0.03)",
-            color: "#f5f0e8", fontSize: "13px",
-            fontFamily: "'Lora', serif",
-            outline: "none",
+            border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.03)",
+            color: "#f5f0e8", fontSize: "13px", fontFamily: "'Lora', serif", outline: "none",
           }}
         />
-        <button
-          onClick={send}
-          disabled={streaming || !input.trim()}
-          style={{
-            padding: "10px 18px", borderRadius: "8px", border: "none",
-            background: streaming || !input.trim() ? "rgba(234,179,8,0.2)" : "rgba(234,179,8,0.9)",
-            color: streaming || !input.trim() ? "rgba(0,0,0,0.4)" : "#080808",
-            fontSize: "12px", fontFamily: "'IBM Plex Mono', monospace", fontWeight: 700,
-            cursor: streaming || !input.trim() ? "not-allowed" : "pointer",
-            whiteSpace: "nowrap",
-          }}
-        >
+        <button onClick={send} disabled={streaming || !input.trim()} style={{
+          padding: "10px 18px", borderRadius: "8px", border: "none",
+          background: streaming || !input.trim() ? "rgba(234,179,8,0.2)" : "rgba(234,179,8,0.9)",
+          color: streaming || !input.trim() ? "rgba(0,0,0,0.4)" : "#080808",
+          fontSize: "12px", fontFamily: "'IBM Plex Mono', monospace", fontWeight: 700,
+          cursor: streaming || !input.trim() ? "not-allowed" : "pointer", whiteSpace: "nowrap",
+        }}>
           {streaming ? "…" : "INVIA"}
         </button>
       </div>
@@ -194,9 +178,8 @@ function IdeaChat({ idea }) {
   );
 }
 
-function IdeaCard({ idea, starred, onStar, onExpand, expanding, expansion }) {
+function IdeaCard({ idea, starred, onStar, onExpand, expanding, expansion, onRemove }) {
   const [open, setOpen] = useState(false);
-
   return (
     <div style={{
       background: starred ? "linear-gradient(160deg, rgba(234,179,8,0.06) 0%, #0d0d0d 60%)" : "#0d0d0d",
@@ -209,14 +192,19 @@ function IdeaCard({ idea, starred, onStar, onExpand, expanding, expansion }) {
           {idea.tagline && <p style={{ margin: 0, fontSize: "13px", color: "rgba(255,255,255,0.4)", fontFamily: "'Lora', serif", fontStyle: "italic" }}>{idea.tagline}</p>}
         </div>
         <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
-          <button onClick={e => { e.stopPropagation(); onStar(idea.id); }} style={{ width: "30px", height: "30px", borderRadius: "6px", border: starred ? "1px solid rgba(234,179,8,0.5)" : "1px solid rgba(255,255,255,0.1)", background: starred ? "rgba(234,179,8,0.12)" : "rgba(255,255,255,0.03)", color: starred ? "#fde047" : "rgba(255,255,255,0.25)", cursor: "pointer", fontSize: "13px", display: "flex", alignItems: "center", justifyContent: "center" }}>★</button>
-          <button onClick={e => { e.stopPropagation(); onExpand(idea.id); }} disabled={expanding} style={{ width: "30px", height: "30px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.4)", cursor: expanding ? "wait" : "pointer", fontSize: "16px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 300 }}>{expanding ? "·" : "+"}</button>
+          {onStar && (
+            <button onClick={e => { e.stopPropagation(); onStar(idea.id); }} style={{ width: "30px", height: "30px", borderRadius: "6px", border: starred ? "1px solid rgba(234,179,8,0.5)" : "1px solid rgba(255,255,255,0.1)", background: starred ? "rgba(234,179,8,0.12)" : "rgba(255,255,255,0.03)", color: starred ? "#fde047" : "rgba(255,255,255,0.25)", cursor: "pointer", fontSize: "13px", display: "flex", alignItems: "center", justifyContent: "center" }}>★</button>
+          )}
+          {onRemove && (
+            <button onClick={e => { e.stopPropagation(); onRemove(idea.id); }} title="Rimuovi dalla shortlist" style={{ width: "30px", height: "30px", borderRadius: "6px", border: "1px solid rgba(239,68,68,0.3)", background: "rgba(239,68,68,0.08)", color: "rgba(239,68,68,0.6)", cursor: "pointer", fontSize: "14px", display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+          )}
+          {onExpand && (
+            <button onClick={e => { e.stopPropagation(); onExpand(idea.id); }} disabled={expanding} style={{ width: "30px", height: "30px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.4)", cursor: expanding ? "wait" : "pointer", fontSize: "16px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 300 }}>{expanding ? "·" : "+"}</button>
+          )}
           <div style={{ width: "30px", height: "30px", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(255,255,255,0.2)", fontSize: "12px", transform: open ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>▾</div>
         </div>
       </div>
-
       {!open && idea.problema && <div style={{ padding: "0 24px 18px", fontSize: "13px", color: "rgba(255,255,255,0.38)", fontFamily: "'Lora', serif", lineHeight: "1.6" }}>{idea.problema}</div>}
-
       {open && (
         <div style={{ padding: "0 24px 24px", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "20px" }}>
           <Field label="🔥 Problema" value={idea.problema} accent="rgba(239,68,68,0.7)" />
@@ -226,7 +214,6 @@ function IdeaCard({ idea, starred, onStar, onExpand, expanding, expansion }) {
           <Field label="🏆 Perché tu (moat)" value={idea.moat} accent="rgba(168,85,247,0.7)" />
           <Field label="⚠️ Rischio principale" value={idea.rischio} accent="rgba(251,146,60,0.7)" />
           <Field label="🛠️ MVP settimane 1-4" value={idea.mvp} accent="rgba(99,102,241,0.7)" />
-
           {expansion !== undefined && (
             <div style={{ marginTop: "20px", padding: "16px", borderRadius: "8px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
               <div style={{ fontSize: "9px", fontFamily: "'IBM Plex Mono', monospace", color: "rgba(99,202,183,0.6)", letterSpacing: "0.14em", marginBottom: "10px" }}>DEEP DIVE</div>
@@ -235,7 +222,6 @@ function IdeaCard({ idea, starred, onStar, onExpand, expanding, expansion }) {
               </p>
             </div>
           )}
-
           <IdeaChat idea={idea} />
         </div>
       )}
@@ -252,6 +238,7 @@ export default function Home() {
   const [selConstraints, setSelConstraints] = useState([]);
   const [ideas, setIdeas] = useState([]);
   const [starred, setStarred] = useState([]);
+  const [savedShortlist, setSavedShortlist] = useState([]);
   const [loading, setLoading] = useState(false);
   const [streamPreview, setStreamPreview] = useState("");
   const [expansions, setExpansions] = useState({});
@@ -259,9 +246,54 @@ export default function Home() {
   const [analysis, setAnalysis] = useState("");
   const [analyzingShortlist, setAnalyzingShortlist] = useState(false);
   const [phase, setPhase] = useState("idle");
+  const [shortlistOpen, setShortlistOpen] = useState(true);
+
+  // Load shortlist from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("startup-lab-shortlist");
+      if (saved) setSavedShortlist(JSON.parse(saved));
+    } catch {}
+  }, []);
+
+  // Save shortlist to localStorage whenever it changes
+  const saveToShortlist = (idea) => {
+    setSavedShortlist(prev => {
+      const already = prev.find(i => i.title === idea.title);
+      if (already) return prev;
+      const updated = [...prev, idea];
+      try { localStorage.setItem("startup-lab-shortlist", JSON.stringify(updated)); } catch {}
+      return updated;
+    });
+  };
+
+  const removeFromShortlist = (id) => {
+    setSavedShortlist(prev => {
+      const updated = prev.filter(i => i.id !== id);
+      try { localStorage.setItem("startup-lab-shortlist", JSON.stringify(updated)); } catch {}
+      return updated;
+    });
+  };
+
+  const clearShortlist = () => {
+    setSavedShortlist([]);
+    try { localStorage.removeItem("startup-lab-shortlist"); } catch {}
+  };
 
   const toggle = (list, setList, id) =>
     setList(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
+
+  const handleStar = (ideaId) => {
+    const idea = ideas.find(i => i.id === ideaId);
+    if (!idea) return;
+    const isStarred = starred.includes(ideaId);
+    if (isStarred) {
+      setStarred(p => p.filter(x => x !== ideaId));
+    } else {
+      setStarred(p => [...p, ideaId]);
+      saveToShortlist(idea);
+    }
+  };
 
   const generate = useCallback(async () => {
     if (loading) return;
@@ -295,15 +327,14 @@ export default function Home() {
   }, [ideas, expandingId]);
 
   const analyzeShortlist = useCallback(async () => {
-    if (analyzingShortlist || starred.length === 0) return;
+    if (analyzingShortlist || savedShortlist.length === 0) return;
     setAnalyzingShortlist(true); setAnalysis("");
-    const starredIdeas = ideas.filter(i => starred.includes(i.id));
     try {
-      await streamFromRoute("/api/analyze", { ideas: starredIdeas },
+      await streamFromRoute("/api/analyze", { ideas: savedShortlist },
         chunk => setAnalysis(p => p + chunk)
       );
     } finally { setAnalyzingShortlist(false); }
-  }, [ideas, starred, analyzingShortlist]);
+  }, [savedShortlist, analyzingShortlist]);
 
   return (
     <div style={{ minHeight: "100vh", background: "#080808", color: "#f5f0e8", fontFamily: "'Lora', Georgia, serif" }}>
@@ -318,7 +349,8 @@ export default function Home() {
 
       <div style={{ position: "relative", zIndex: 1, maxWidth: "820px", margin: "0 auto", padding: "48px 24px 100px" }}>
 
-        <div style={{ marginBottom: "52px" }}>
+        {/* Header */}
+        <div style={{ marginBottom: "40px" }}>
           <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: "10px", color: "rgba(234,179,8,0.6)", letterSpacing: "0.2em", marginBottom: "16px" }}>BROADCAST → AI STARTUP LAB</div>
           <h1 style={{ marginBottom: "16px", fontFamily: "'Playfair Display', serif", fontSize: "clamp(30px, 5vw, 46px)", fontWeight: 700, lineHeight: "1.1", color: "#f5f0e8", letterSpacing: "-0.02em" }}>
             Le tue idee.<br /><span style={{ color: "rgba(255,255,255,0.28)" }}>Calibrate su di te.</span>
@@ -330,6 +362,56 @@ export default function Home() {
           </div>
         </div>
 
+        {/* SHORTLIST PERSISTENTE */}
+        {savedShortlist.length > 0 && (
+          <div style={{ marginBottom: "40px", borderRadius: "12px", border: "1px solid rgba(234,179,8,0.25)", background: "rgba(234,179,8,0.03)", overflow: "hidden" }}>
+            <div
+              onClick={() => setShortlistOpen(o => !o)}
+              style={{ padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", borderBottom: shortlistOpen ? "1px solid rgba(234,179,8,0.15)" : "none" }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <span style={{ fontSize: "9px", fontFamily: "'IBM Plex Mono', monospace", color: "rgba(234,179,8,0.7)", letterSpacing: "0.16em" }}>★ SHORTLIST SALVATA</span>
+                <span style={{ fontSize: "11px", fontFamily: "'IBM Plex Mono', monospace", color: "rgba(234,179,8,0.5)", background: "rgba(234,179,8,0.1)", padding: "2px 8px", borderRadius: "10px" }}>{savedShortlist.length}</span>
+              </div>
+              <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                <button
+                  onClick={e => { e.stopPropagation(); analyzeShortlist(); }}
+                  disabled={analyzingShortlist}
+                  style={{ padding: "6px 14px", borderRadius: "6px", border: "1px solid rgba(234,179,8,0.3)", background: "transparent", color: "#fde047", fontSize: "11px", fontFamily: "'IBM Plex Mono', monospace", cursor: analyzingShortlist ? "wait" : "pointer" }}
+                >
+                  {analyzingShortlist ? "ANALISI…" : "ANALIZZA"}
+                </button>
+                <button
+                  onClick={e => { e.stopPropagation(); clearShortlist(); }}
+                  style={{ padding: "6px 14px", borderRadius: "6px", border: "1px solid rgba(239,68,68,0.2)", background: "transparent", color: "rgba(239,68,68,0.5)", fontSize: "11px", fontFamily: "'IBM Plex Mono', monospace", cursor: "pointer" }}
+                >
+                  SVUOTA
+                </button>
+                <span style={{ color: "rgba(255,255,255,0.2)", fontSize: "12px", transform: shortlistOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s", display: "inline-block" }}>▾</span>
+              </div>
+            </div>
+
+            {shortlistOpen && (
+              <div style={{ padding: "16px 20px", display: "flex", flexDirection: "column", gap: "10px" }}>
+                {savedShortlist.map(idea => (
+                  <IdeaCard key={idea.id} idea={idea} starred={false} onRemove={removeFromShortlist} />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Analisi shortlist */}
+        {(analysis || analyzingShortlist) && (
+          <div style={{ marginBottom: "40px", padding: "28px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
+            <div style={{ fontSize: "9px", fontFamily: "'IBM Plex Mono', monospace", color: "rgba(234,179,8,0.5)", letterSpacing: "0.18em", marginBottom: "16px" }}>★ ANALISI COMPARATIVA</div>
+            <div style={{ fontSize: "14px", color: "rgba(255,255,255,0.65)", lineHeight: "1.9", fontFamily: "'Lora', serif", whiteSpace: "pre-wrap" }}>
+              {analysis}{analyzingShortlist && <span style={{ animation: "blink 0.6s infinite" }}>▌</span>}
+            </div>
+          </div>
+        )}
+
+        {/* Filters */}
         <div style={{ marginBottom: "36px" }}>
           <FilterLabel>Focus di questa sessione</FilterLabel>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "7px", marginBottom: "18px" }}>
@@ -341,17 +423,14 @@ export default function Home() {
           </div>
         </div>
 
+        {/* Generate button */}
         <div style={{ display: "flex", gap: "12px", alignItems: "center", marginBottom: "40px", flexWrap: "wrap" }}>
           <button onClick={generate} disabled={loading} style={{ padding: "13px 32px", borderRadius: "8px", border: "none", background: loading ? "rgba(234,179,8,0.2)" : "rgba(234,179,8,0.9)", color: loading ? "rgba(255,255,255,0.4)" : "#080808", fontSize: "14px", fontFamily: "'IBM Plex Mono', monospace", fontWeight: 700, cursor: loading ? "wait" : "pointer", letterSpacing: "0.04em", display: "flex", alignItems: "center", gap: "8px" }}>
             {loading ? <><span style={{ animation: "blink 0.6s infinite" }}>▌</span> GENERAZIONE…</> : "⚡ GENERA 4 IDEE"}
           </button>
-          {starred.length > 0 && phase === "done" && (
-            <button onClick={analyzeShortlist} disabled={analyzingShortlist} style={{ padding: "13px 24px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.04)", color: "#f5f0e8", fontSize: "13px", fontFamily: "'IBM Plex Mono', monospace", cursor: analyzingShortlist ? "wait" : "pointer" }}>
-              {analyzingShortlist ? "ANALISI…" : `★ ANALIZZA SHORTLIST (${starred.length})`}
-            </button>
-          )}
         </div>
 
+        {/* Stream preview */}
         {loading && streamPreview && (
           <div style={{ marginBottom: "28px", padding: "14px 18px", borderRadius: "8px", border: "1px solid rgba(234,179,8,0.1)", background: "rgba(234,179,8,0.03)" }}>
             <div style={{ fontSize: "9px", fontFamily: "'IBM Plex Mono', monospace", color: "rgba(234,179,8,0.4)", marginBottom: "6px", letterSpacing: "0.15em" }}>STREAMING ▶</div>
@@ -359,21 +438,13 @@ export default function Home() {
           </div>
         )}
 
+        {/* Ideas */}
         {ideas.length > 0 && (
           <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "40px", animation: "fadeIn 0.4s ease" }}>
-            <FilterLabel>{ideas.length} idee — clicca per espandere · + deep dive · ★ shortlist · 💬 chat</FilterLabel>
+            <FilterLabel>{ideas.length} idee — clicca per espandere · + deep dive · ★ salva in shortlist · 💬 chat</FilterLabel>
             {ideas.map(idea => (
-              <IdeaCard key={idea.id} idea={idea} starred={starred.includes(idea.id)} onStar={id => toggle(starred, setStarred, id)} onExpand={expand} expanding={expandingId === idea.id} expansion={expansions[idea.id]} />
+              <IdeaCard key={idea.id} idea={idea} starred={starred.includes(idea.id)} onStar={handleStar} onExpand={expand} expanding={expandingId === idea.id} expansion={expansions[idea.id]} />
             ))}
-          </div>
-        )}
-
-        {(analysis || analyzingShortlist) && (
-          <div style={{ padding: "28px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
-            <div style={{ fontSize: "9px", fontFamily: "'IBM Plex Mono', monospace", color: "rgba(234,179,8,0.5)", letterSpacing: "0.18em", marginBottom: "16px" }}>★ ANALISI COMPARATIVA SHORTLIST</div>
-            <div style={{ fontSize: "14px", color: "rgba(255,255,255,0.65)", lineHeight: "1.9", fontFamily: "'Lora', serif", whiteSpace: "pre-wrap" }}>
-              {analysis}{analyzingShortlist && <span style={{ animation: "blink 0.6s infinite" }}>▌</span>}
-            </div>
           </div>
         )}
       </div>
