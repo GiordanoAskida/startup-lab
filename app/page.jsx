@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 
 const FOCUS_AREAS = [
   { id: "workflow", label: "Automazione workflow", icon: "⚙️" },
@@ -88,10 +88,121 @@ const Field = ({ label, value, accent }) => {
   );
 };
 
+function IdeaChat({ idea }) {
+  const [history, setHistory] = useState([]);
+  const [input, setInput] = useState("");
+  const [streaming, setStreaming] = useState(false);
+  const [currentReply, setCurrentReply] = useState("");
+  const bottomRef = useRef(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [history, currentReply]);
+
+  const send = async () => {
+    const question = input.trim();
+    if (!question || streaming) return;
+    setInput("");
+    setStreaming(true);
+    setCurrentReply("");
+
+    const newHistory = [...history, { role: "user", content: question }];
+    setHistory(newHistory);
+
+    let reply = "";
+    try {
+      await streamFromRoute("/api/chat", { idea, history, question }, chunk => {
+        reply += chunk;
+        setCurrentReply(reply);
+      });
+      setHistory([...newHistory, { role: "assistant", content: reply }]);
+    } catch (e) {
+      setHistory([...newHistory, { role: "assistant", content: "Errore: " + e.message }]);
+    } finally {
+      setStreaming(false);
+      setCurrentReply("");
+    }
+  };
+
+  return (
+    <div style={{ marginTop: "20px", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "16px" }}>
+      <div style={{ fontSize: "9px", fontFamily: "'IBM Plex Mono', monospace", color: "rgba(99,202,183,0.5)", letterSpacing: "0.14em", marginBottom: "12px" }}>💬 CHAT SULL'IDEA</div>
+
+      {/* History */}
+      {history.length > 0 && (
+        <div style={{ marginBottom: "12px", display: "flex", flexDirection: "column", gap: "8px", maxHeight: "300px", overflowY: "auto" }}>
+          {history.map((m, i) => (
+            <div key={i} style={{
+              padding: "10px 14px",
+              borderRadius: "8px",
+              background: m.role === "user" ? "rgba(234,179,8,0.06)" : "rgba(255,255,255,0.03)",
+              border: m.role === "user" ? "1px solid rgba(234,179,8,0.15)" : "1px solid rgba(255,255,255,0.05)",
+              alignSelf: m.role === "user" ? "flex-end" : "flex-start",
+              maxWidth: "90%",
+            }}>
+              <div style={{ fontSize: "9px", fontFamily: "'IBM Plex Mono', monospace", color: m.role === "user" ? "rgba(234,179,8,0.5)" : "rgba(99,202,183,0.5)", marginBottom: "4px" }}>
+                {m.role === "user" ? "TU" : "ADVISOR"}
+              </div>
+              <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.7)", lineHeight: "1.6", fontFamily: "'Lora', serif", whiteSpace: "pre-wrap" }}>{m.content}</div>
+            </div>
+          ))}
+          {streaming && currentReply && (
+            <div style={{ padding: "10px 14px", borderRadius: "8px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)", alignSelf: "flex-start", maxWidth: "90%" }}>
+              <div style={{ fontSize: "9px", fontFamily: "'IBM Plex Mono', monospace", color: "rgba(99,202,183,0.5)", marginBottom: "4px" }}>ADVISOR</div>
+              <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.7)", lineHeight: "1.6", fontFamily: "'Lora', serif", whiteSpace: "pre-wrap" }}>
+                {currentReply}<span style={{ animation: "blink 0.8s infinite" }}>▌</span>
+              </div>
+            </div>
+          )}
+          <div ref={bottomRef} />
+        </div>
+      )}
+
+      {/* Input */}
+      <div style={{ display: "flex", gap: "8px" }}>
+        <input
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && !e.shiftKey && send()}
+          placeholder="Es: c'è un'incongruenza nel revenue model..."
+          disabled={streaming}
+          style={{
+            flex: 1, padding: "10px 14px", borderRadius: "8px",
+            border: "1px solid rgba(255,255,255,0.1)",
+            background: "rgba(255,255,255,0.03)",
+            color: "#f5f0e8", fontSize: "13px",
+            fontFamily: "'Lora', serif",
+            outline: "none",
+          }}
+        />
+        <button
+          onClick={send}
+          disabled={streaming || !input.trim()}
+          style={{
+            padding: "10px 18px", borderRadius: "8px", border: "none",
+            background: streaming || !input.trim() ? "rgba(234,179,8,0.2)" : "rgba(234,179,8,0.9)",
+            color: streaming || !input.trim() ? "rgba(0,0,0,0.4)" : "#080808",
+            fontSize: "12px", fontFamily: "'IBM Plex Mono', monospace", fontWeight: 700,
+            cursor: streaming || !input.trim() ? "not-allowed" : "pointer",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {streaming ? "…" : "INVIA"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function IdeaCard({ idea, starred, onStar, onExpand, expanding, expansion }) {
   const [open, setOpen] = useState(false);
+
   return (
-    <div style={{ background: starred ? "linear-gradient(160deg, rgba(234,179,8,0.06) 0%, #0d0d0d 60%)" : "#0d0d0d", border: starred ? "1px solid rgba(234,179,8,0.3)" : "1px solid rgba(255,255,255,0.06)", borderRadius: "12px", overflow: "hidden", transition: "border-color 0.25s" }}>
+    <div style={{
+      background: starred ? "linear-gradient(160deg, rgba(234,179,8,0.06) 0%, #0d0d0d 60%)" : "#0d0d0d",
+      border: starred ? "1px solid rgba(234,179,8,0.3)" : "1px solid rgba(255,255,255,0.06)",
+      borderRadius: "12px", overflow: "hidden", transition: "border-color 0.25s",
+    }}>
       <div onClick={() => setOpen(o => !o)} style={{ padding: "20px 24px", cursor: "pointer", display: "flex", alignItems: "flex-start", gap: "16px" }}>
         <div style={{ flex: 1, minWidth: 0 }}>
           <h3 style={{ margin: "0 0 5px", fontSize: "18px", fontFamily: "'Playfair Display', Georgia, serif", color: "#f5f0e8", fontWeight: 700, lineHeight: "1.2" }}>{idea.title}</h3>
@@ -103,7 +214,9 @@ function IdeaCard({ idea, starred, onStar, onExpand, expanding, expansion }) {
           <div style={{ width: "30px", height: "30px", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(255,255,255,0.2)", fontSize: "12px", transform: open ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>▾</div>
         </div>
       </div>
+
       {!open && idea.problema && <div style={{ padding: "0 24px 18px", fontSize: "13px", color: "rgba(255,255,255,0.38)", fontFamily: "'Lora', serif", lineHeight: "1.6" }}>{idea.problema}</div>}
+
       {open && (
         <div style={{ padding: "0 24px 24px", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "20px" }}>
           <Field label="🔥 Problema" value={idea.problema} accent="rgba(239,68,68,0.7)" />
@@ -113,12 +226,17 @@ function IdeaCard({ idea, starred, onStar, onExpand, expanding, expansion }) {
           <Field label="🏆 Perché tu (moat)" value={idea.moat} accent="rgba(168,85,247,0.7)" />
           <Field label="⚠️ Rischio principale" value={idea.rischio} accent="rgba(251,146,60,0.7)" />
           <Field label="🛠️ MVP settimane 1-4" value={idea.mvp} accent="rgba(99,102,241,0.7)" />
+
           {expansion !== undefined && (
             <div style={{ marginTop: "20px", padding: "16px", borderRadius: "8px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
               <div style={{ fontSize: "9px", fontFamily: "'IBM Plex Mono', monospace", color: "rgba(99,202,183,0.6)", letterSpacing: "0.14em", marginBottom: "10px" }}>DEEP DIVE</div>
-              <p style={{ margin: 0, fontSize: "13px", color: "rgba(255,255,255,0.6)", lineHeight: "1.8", fontFamily: "'Lora', serif", whiteSpace: "pre-wrap" }}>{expansion}{expanding && <span style={{ animation: "blink 0.8s infinite" }}>▌</span>}</p>
+              <p style={{ margin: 0, fontSize: "13px", color: "rgba(255,255,255,0.6)", lineHeight: "1.8", fontFamily: "'Lora', serif", whiteSpace: "pre-wrap" }}>
+                {expansion}{expanding && <span style={{ animation: "blink 0.8s infinite" }}>▌</span>}
+              </p>
             </div>
           )}
+
+          <IdeaChat idea={idea} />
         </div>
       )}
     </div>
@@ -171,8 +289,8 @@ export default function Home() {
     setExpansions(p => ({ ...p, [ideaId]: "" }));
     try {
       await streamFromRoute("/api/expand", { idea },
-        chunk => setExpansions(p => ({ ...p, [ideaId]: (p[ideaId] || "") + chunk })
-      ));
+        chunk => setExpansions(p => ({ ...p, [ideaId]: (p[ideaId] || "") + chunk }))
+      );
     } finally { setExpandingId(null); }
   }, [ideas, expandingId]);
 
@@ -194,16 +312,19 @@ export default function Home() {
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
         @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
         * { box-sizing: border-box; margin:0; padding:0; }
+        input::placeholder { color: rgba(255,255,255,0.2); }
       `}</style>
       <div style={{ position: "fixed", inset: 0, pointerEvents: "none", backgroundImage: "repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px)" }} />
+
       <div style={{ position: "relative", zIndex: 1, maxWidth: "820px", margin: "0 auto", padding: "48px 24px 100px" }}>
+
         <div style={{ marginBottom: "52px" }}>
           <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: "10px", color: "rgba(234,179,8,0.6)", letterSpacing: "0.2em", marginBottom: "16px" }}>BROADCAST → AI STARTUP LAB</div>
           <h1 style={{ marginBottom: "16px", fontFamily: "'Playfair Display', serif", fontSize: "clamp(30px, 5vw, 46px)", fontWeight: 700, lineHeight: "1.1", color: "#f5f0e8", letterSpacing: "-0.02em" }}>
             Le tue idee.<br /><span style={{ color: "rgba(255,255,255,0.28)" }}>Calibrate su di te.</span>
           </h1>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", padding: "10px 14px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.07)", background: "rgba(255,255,255,0.02)", width: "fit-content" }}>
-            {["📺 Broadcast 15+ anni", "🤖 AI-first solo", "💶 Budget €5k", "🎯 Creator & Freelance", "🛫 Lifestyle exit"].map(t => (
+            {["📺 Broadcast 15+ anni", "🤖 AI-first solo", "💶 Budget €5k", "🇫🇷 Francia priority", "🇮🇹 Italia", "🌍 Europa"].map(t => (
               <span key={t} style={{ fontSize: "11px", fontFamily: "'IBM Plex Mono', monospace", color: "rgba(255,255,255,0.35)" }}>{t}</span>
             ))}
           </div>
@@ -240,7 +361,7 @@ export default function Home() {
 
         {ideas.length > 0 && (
           <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "40px", animation: "fadeIn 0.4s ease" }}>
-            <FilterLabel>{ideas.length} idee — clicca per espandere · + deep dive · ★ shortlist</FilterLabel>
+            <FilterLabel>{ideas.length} idee — clicca per espandere · + deep dive · ★ shortlist · 💬 chat</FilterLabel>
             {ideas.map(idea => (
               <IdeaCard key={idea.id} idea={idea} starred={starred.includes(idea.id)} onStar={id => toggle(starred, setStarred, id)} onExpand={expand} expanding={expandingId === idea.id} expansion={expansions[idea.id]} />
             ))}
