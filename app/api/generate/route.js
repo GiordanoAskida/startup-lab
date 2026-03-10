@@ -1,5 +1,3 @@
-export const runtime = "edge";
-
 const FOUNDER_PROFILE = `
 PROFILO REALE DEL FOUNDER:
 - Background: Tech/Dev + Giornalismo/Media + 15+ anni di soluzioni per broadcaster TV (postproduzione: documentari, news, sport, meteo, band annonces)
