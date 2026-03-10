@@ -2,6 +2,7 @@ const FOUNDER_PROFILE = `
 Background: Tech/Dev + Giornalismo/Media + 15+ anni workflow broadcaster TV.
 Solo, nessun dev, budget €5k, AI agents al 95%. Obiettivo lifestyle business.
 Clienti: Creator/Freelancer video, Consumer B2C.
+Mercati prioritari: 1) Francia (France Télévisions, TF1, M6, Arte, Canal+), 2) Italia (RAI, Mediaset), 3) Europa.
 `;
 
 export async function POST(req) {
