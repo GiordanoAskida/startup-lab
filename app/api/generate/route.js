@@ -7,7 +7,7 @@ PROFILO REALE DEL FOUNDER:
 - Obiettivo: Lifestyle business (libertà + profitto stabile). NON cerca investitori, NON vuole scala enterprise.
 - Clienti target: Creator/Influencer, Freelancer video, Consumer B2C — chi fa contenuti per YouTube/social ma vuole lavorare con broadcaster TV professionali.
 - Direzione: AI per automazione workflow video/media
-- Vantaggi competitivi: conosce i workflow interni dei broadcaster (standard tecnici, metadati, delivery, compliance), ha contatti nel settore, capisce sia il lato creator che il lato broadcast professionale.
+- - Mercati prioritari: 1) Francia (France Télévisions, TF1, M6, Arte, Canal+), 2) Italia (RAI, Mediaset), 3) Europa in generale. Conosce i workflow interni dei broadcaster (standard tecnici, metadati, delivery, compliance), ha contatti nel settore, capisce sia il lato creator che il lato broadcast professionale.
 - Vincoli hard: no cicli di vendita lunghi, no dipendenza da pochi clienti grandi, costruibile solo con AI agents entro €5k.
 `;
 
