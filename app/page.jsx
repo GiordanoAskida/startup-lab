@@ -14,6 +14,9 @@ const FOCUS_AREAS = [
   { id: "podcastaudio", label: "Podcast audio statico", icon: "🎙️" },
   { id: "videointerviste", label: "Video interviste statiche", icon: "📹" },
   { id: "animazione", label: "Animazione contenuti", icon: "🎬" },
+  { id: "seniortech", label: "Senior tech", icon: "👴" },
+  { id: "agriurbana", label: "Agricoltura urbana", icon: "🌱" },
+  { id: "turismo", label: "Turismo esperienziale", icon: "🗺️" },
 ];
 
 const CONSTRAINTS = [
