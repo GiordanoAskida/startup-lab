@@ -1,5 +1,3 @@
-export const runtime = "edge";
-
 const FOUNDER_PROFILE = `
 Background: Tech/Dev + Giornalismo/Media + 15+ anni workflow broadcaster TV.
 Solo, nessun dev, budget €5k, AI agents al 95%. Obiettivo lifestyle business.
