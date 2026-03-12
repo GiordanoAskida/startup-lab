@@ -10,6 +10,13 @@ const FOCUS_AREAS = [
   { id: "localization", label: "Localizzazione & subtitle", icon: "🌍" },
   { id: "repurpose", label: "Repurposing contenuti", icon: "♻️" },
   { id: "pitching", label: "Pitch a broadcaster", icon: "📡" },
+  { id: "nontecnici", label: "Creativi non-tecnici", icon: "🎨" },
+  { id: "podcastaudio", label: "Podcast audio statico", icon: "🎙️" },
+  { id: "videointerviste", label: "Video interviste statiche", icon: "📹" },
+  { id: "animazione", label: "Animazione contenuti", icon: "🎬" },
+  { id: "seniortech", label: "Senior tech", icon: "👴" },
+  { id: "agriurbana", label: "Agricoltura urbana", icon: "🌱" },
+  { id: "turismo", label: "Turismo esperienziale", icon: "🗺️" },
 ];
 
 const CONSTRAINTS = [
@@ -41,6 +48,8 @@ function parseIdeas(text) {
       moat: get("Moat"),
       rischio: get("Rischio"),
       mvp: get("MVP"),
+      trend: get("Trend"),
+      proof: get("Proof"),
     };
   });
 }
@@ -214,6 +223,8 @@ function IdeaCard({ idea, starred, onStar, onExpand, expanding, expansion, onRem
           <Field label="🏆 Perché tu (moat)" value={idea.moat} accent="rgba(168,85,247,0.7)" />
           <Field label="⚠️ Rischio principale" value={idea.rischio} accent="rgba(251,146,60,0.7)" />
           <Field label="🛠️ MVP settimane 1-4" value={idea.mvp} accent="rgba(99,102,241,0.7)" />
+          <Field label="📈 Trend di mercato" value={idea.trend} accent="rgba(34,197,94,0.7)" />
+          <Field label="✅ Proof — competitor esistenti" value={idea.proof} accent="rgba(56,189,248,0.7)" />
           {expansion !== undefined && (
             <div style={{ marginTop: "20px", padding: "16px", borderRadius: "8px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
               <div style={{ fontSize: "9px", fontFamily: "'IBM Plex Mono', monospace", color: "rgba(99,202,183,0.6)", letterSpacing: "0.14em", marginBottom: "10px" }}>DEEP DIVE</div>
