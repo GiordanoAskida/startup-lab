@@ -367,7 +367,7 @@ export default function Home() {
             Le tue idee.<br /><span style={{ color: "rgba(255,255,255,0.28)" }}>Calibrate su di te.</span>
           </h1>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", padding: "10px 14px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.07)", background: "rgba(255,255,255,0.02)", width: "fit-content" }}>
-            {["📺 Broadcast 15+ anni", "🤖 AI-first solo", "💶 Budget €5k", "🇫🇷 Francia priority", "🇮🇹 Italia", "🌍 Europa"].map(t => (
+            {["🤖 AI-first solo", "💶 Budget €5k", "🇫🇷 Francia priority", "🇮🇹 Italia", "🌍 Europa"].map(t => (
               <span key={t} style={{ fontSize: "11px", fontFamily: "'IBM Plex Mono', monospace", color: "rgba(255,255,255,0.35)" }}>{t}</span>
             ))}
           </div>
