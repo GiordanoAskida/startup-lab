@@ -10,13 +10,6 @@ const FOCUS_AREAS = [
   { id: "localization", label: "Localizzazione & subtitle", icon: "🌍" },
   { id: "repurpose", label: "Repurposing contenuti", icon: "♻️" },
   { id: "pitching", label: "Pitch a broadcaster", icon: "📡" },
-  { id: "nontecnici", label: "Creativi non-tecnici", icon: "🎨" },
-  { id: "podcastaudio", label: "Podcast audio statico", icon: "🎙️" },
-  { id: "videointerviste", label: "Video interviste statiche", icon: "📹" },
-  { id: "animazione", label: "Animazione contenuti", icon: "🎬" },
-  { id: "seniortech", label: "Senior tech", icon: "👴" },
-  { id: "agriurbana", label: "Agricoltura urbana", icon: "🌱" },
-  { id: "turismo", label: "Turismo esperienziale", icon: "🗺️" },
 ];
 
 const CONSTRAINTS = [
