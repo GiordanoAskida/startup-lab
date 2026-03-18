@@ -2,21 +2,21 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 
 const FOCUS_AREAS = [
-  { id: "workflow", label: "Automazione workflow", icon: "⚙️" },
-  { id: "quality", label: "Qualità broadcast", icon: "📺" },
-  { id: "compliance", label: "Compliance & delivery", icon: "✅" },
-  { id: "monetization", label: "Monetizzazione contenuti", icon: "💰" },
-  { id: "metadata", label: "Metadati & SEO video", icon: "🏷️" },
-  { id: "localization", label: "Localizzazione & subtitle", icon: "🌍" },
-  { id: "repurpose", label: "Repurposing contenuti", icon: "♻️" },
-  { id: "pitching", label: "Pitch a broadcaster", icon: "📡" },
-  { id: "nontecnici", label: "Creativi non-tecnici", icon: "🎨" },
-  { id: "podcastaudio", label: "Podcast audio statico", icon: "🎙️" },
-  { id: "videointerviste", label: "Video interviste statiche", icon: "📹" },
-  { id: "animazione", label: "Animazione contenuti", icon: "🎬" },
-  { id: "seniortech", label: "Senior tech", icon: "👴" },
-  { id: "agriurbana", label: "Agricoltura urbana", icon: "🌱" },
-  { id: "turismo", label: "Turismo esperienziale", icon: "🗺️" },
+  { id: "automazione", label: "Automazione processi", icon: "⚙️" },
+  { id: "contenuti", label: "Creazione contenuti", icon: "✍️" },
+  { id: "ecommerce", label: "E-commerce & prodotti", icon: "🛍️" },
+  { id: "formazione", label: "Formazione & corsi", icon: "📚" },
+  { id: "community", label: "Community & membership", icon: "👥" },
+  { id: "salute", label: "Salute & benessere", icon: "🧘" },
+  { id: "finanza", label: "Finanza personale", icon: "💳" },
+  { id: "viaggi", label: "Viaggi & esperienze", icon: "🗺️" },
+  { id: "hobby", label: "Hobby & passioni", icon: "🎯" },
+  { id: "produttivita", label: "Produttività", icon: "⚡" },
+  { id: "animali", label: "Animali & pet", icon: "🐾" },
+  { id: "casa", label: "Casa & lifestyle", icon: "🏠" },
+  { id: "genitorialita", label: "Genitorialità", icon: "👶" },
+  { id: "sostenibilita", label: "Sostenibilità", icon: "🌱" },
+  { id: "locale", label: "Business locali", icon: "📍" },
 ];
 
 const CONSTRAINTS = [
@@ -28,11 +28,13 @@ const CONSTRAINTS = [
   { id: "b2c", label: "Pagamento diretto (no enterprise)", icon: "💳" },
 ];
 
+const REVENUE_STEPS = [2000, 3000, 5000, 7500, 10000];
+
 function parseIdeas(text) {
   const blocks = text.split(/(?=IDEA\s*\d)/i).filter(b => b.trim().length > 20);
   return blocks.map((block, i) => {
     const get = (label) => {
-      const re = new RegExp(`${label}[:\\s]+(.+?)(?=\\n[A-ZÀÈÌÒÙ][a-zA-Zàèìòù]+:|IDEA \\d|$)`, "is");
+      const re = new RegExp(`${label}[:\\s]+(.+?)(?=\\n[A-ZÀÈÌÒÙ][a-zA-Zàèìòù_]+[:\\s]|IDEA \\d|$)`, "is");
       const m = block.match(re);
       return m ? m[1].trim() : null;
     };
@@ -50,6 +52,9 @@ function parseIdeas(text) {
       mvp: get("MVP"),
       trend: get("Trend"),
       gap: get("Gap"),
+      strumenti: get("Strumenti"),
+      autonomia_ai: get("Autonomia_AI"),
+      come_partire: get("Come_Partire"),
     };
   });
 }
@@ -165,7 +170,7 @@ function IdeaChat({ idea }) {
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === "Enter" && !e.shiftKey && send()}
-          placeholder="Es: c'è un'incongruenza nel revenue model..."
+          placeholder="Es: come trovo i primi clienti?"
           disabled={streaming}
           style={{
             flex: 1, padding: "10px 14px", borderRadius: "8px",
@@ -220,11 +225,14 @@ function IdeaCard({ idea, starred, onStar, onExpand, expanding, expansion, onRem
           <Field label="⚙️ Soluzione AI" value={idea.soluzione} accent="rgba(99,202,183,0.7)" />
           <Field label="👤 Cliente & pagamento" value={idea.cliente} accent="rgba(234,179,8,0.7)" />
           <Field label="💰 Revenue model" value={idea.revenue} accent="rgba(74,222,128,0.7)" />
-          <Field label="🏆 Perché tu (moat)" value={idea.moat} accent="rgba(168,85,247,0.7)" />
+          <Field label="🏆 Vantaggio competitivo" value={idea.moat} accent="rgba(168,85,247,0.7)" />
           <Field label="⚠️ Rischio principale" value={idea.rischio} accent="rgba(251,146,60,0.7)" />
           <Field label="🛠️ MVP settimane 1-4" value={idea.mvp} accent="rgba(99,102,241,0.7)" />
           <Field label="📈 Trend di mercato" value={idea.trend} accent="rgba(34,197,94,0.7)" />
-          <Field label="🎯 Gap — perché è diverso da ciò che esiste" value={idea.gap} accent="rgba(56,189,248,0.7)" />
+          <Field label="🎯 Gap vs competitor" value={idea.gap} accent="rgba(56,189,248,0.7)" />
+          <Field label="🤖 Tool AI & no-code necessari" value={idea.strumenti} accent="rgba(99,202,183,0.7)" />
+          <Field label="📊 Autonomia AI vs manuale" value={idea.autonomia_ai} accent="rgba(234,179,8,0.7)" />
+          <Field label="🚀 Come partire (senza dev)" value={idea.come_partire} accent="rgba(168,85,247,0.7)" />
           {expansion !== undefined && (
             <div style={{ marginTop: "20px", padding: "16px", borderRadius: "8px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
               <div style={{ fontSize: "9px", fontFamily: "'IBM Plex Mono', monospace", color: "rgba(99,202,183,0.6)", letterSpacing: "0.14em", marginBottom: "10px" }}>DEEP DIVE</div>
@@ -247,6 +255,8 @@ const FilterLabel = ({ children }) => (
 export default function Home() {
   const [selFocus, setSelFocus] = useState([]);
   const [selConstraints, setSelConstraints] = useState([]);
+  const [customFocus, setCustomFocus] = useState("");
+  const [revenueTarget, setRevenueTarget] = useState(2000);
   const [ideas, setIdeas] = useState([]);
   const [starred, setStarred] = useState([]);
   const [savedShortlist, setSavedShortlist] = useState([]);
@@ -259,7 +269,6 @@ export default function Home() {
   const [phase, setPhase] = useState("idle");
   const [shortlistOpen, setShortlistOpen] = useState(true);
 
-  // Load shortlist from localStorage on mount
   useEffect(() => {
     try {
       const saved = localStorage.getItem("startup-lab-shortlist");
@@ -267,7 +276,6 @@ export default function Home() {
     } catch {}
   }, []);
 
-  // Save shortlist to localStorage whenever it changes
   const saveToShortlist = (idea) => {
     setSavedShortlist(prev => {
       const already = prev.find(i => i.title === idea.title);
@@ -313,7 +321,12 @@ export default function Home() {
     let full = "";
     try {
       await streamFromRoute("/api/generate",
-        { focusAreas: selFocus.map(id => FOCUS_AREAS.find(f => f.id === id)?.label), constraints: selConstraints.map(id => CONSTRAINTS.find(c => c.id === id)?.label) },
+        {
+          focusAreas: selFocus.map(id => FOCUS_AREAS.find(f => f.id === id)?.label),
+          constraints: selConstraints.map(id => CONSTRAINTS.find(c => c.id === id)?.label),
+          customFocus: customFocus.trim(),
+          revenueTarget,
+        },
         chunk => { full += chunk; setStreamPreview(full.slice(-300)); }
       );
       setIdeas(parseIdeas(full));
@@ -322,7 +335,7 @@ export default function Home() {
       setIdeas([{ id: "err", title: "Errore", tagline: e.message }]);
       setPhase("idle");
     } finally { setLoading(false); }
-  }, [selFocus, selConstraints, loading]);
+  }, [selFocus, selConstraints, customFocus, revenueTarget, loading]);
 
   const expand = useCallback(async (ideaId) => {
     if (expandingId) return;
@@ -347,6 +360,9 @@ export default function Home() {
     } finally { setAnalyzingShortlist(false); }
   }, [savedShortlist, analyzingShortlist]);
 
+  const revenueLabel = revenueTarget >= 10000 ? "€10.000+/mese" : `€${revenueTarget.toLocaleString("it-IT")}/mese`;
+  const sliderIndex = REVENUE_STEPS.indexOf(revenueTarget);
+
   return (
     <div style={{ minHeight: "100vh", background: "#080808", color: "#f5f0e8", fontFamily: "'Lora', Georgia, serif" }}>
       <style>{`
@@ -355,6 +371,10 @@ export default function Home() {
         @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
         * { box-sizing: border-box; margin:0; padding:0; }
         input::placeholder { color: rgba(255,255,255,0.2); }
+        textarea::placeholder { color: rgba(255,255,255,0.2); }
+        input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; outline: none; cursor: pointer; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #fde047; cursor: pointer; }
+        input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: #fde047; cursor: pointer; border: none; }
       `}</style>
       <div style={{ position: "fixed", inset: 0, pointerEvents: "none", backgroundImage: "repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px)" }} />
 
@@ -362,12 +382,12 @@ export default function Home() {
 
         {/* Header */}
         <div style={{ marginBottom: "40px" }}>
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: "10px", color: "rgba(234,179,8,0.6)", letterSpacing: "0.2em", marginBottom: "16px" }}>BROADCAST → AI STARTUP LAB</div>
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: "10px", color: "rgba(234,179,8,0.6)", letterSpacing: "0.2em", marginBottom: "16px" }}>AI STARTUP LAB</div>
           <h1 style={{ marginBottom: "16px", fontFamily: "'Playfair Display', serif", fontSize: "clamp(30px, 5vw, 46px)", fontWeight: 700, lineHeight: "1.1", color: "#f5f0e8", letterSpacing: "-0.02em" }}>
             Le tue idee.<br /><span style={{ color: "rgba(255,255,255,0.28)" }}>Calibrate su di te.</span>
           </h1>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", padding: "10px 14px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.07)", background: "rgba(255,255,255,0.02)", width: "fit-content" }}>
-            {["🤖 AI-first solo", "💶 Budget €5k", "🇫🇷 Francia priority", "🇮🇹 Italia", "🌍 Europa"].map(t => (
+            {["🤖 AI-first solo", "💶 Budget €5k", "🇫🇷 Francia", "🇮🇹 Italia", "🌍 Europa", "🚫 Zero dev"].map(t => (
               <span key={t} style={{ fontSize: "11px", fontFamily: "'IBM Plex Mono', monospace", color: "rgba(255,255,255,0.35)" }}>{t}</span>
             ))}
           </div>
@@ -401,7 +421,6 @@ export default function Home() {
                 <span style={{ color: "rgba(255,255,255,0.2)", fontSize: "12px", transform: shortlistOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s", display: "inline-block" }}>▾</span>
               </div>
             </div>
-
             {shortlistOpen && (
               <div style={{ padding: "16px 20px", display: "flex", flexDirection: "column", gap: "10px" }}>
                 {savedShortlist.map(idea => (
@@ -424,11 +443,52 @@ export default function Home() {
 
         {/* Filters */}
         <div style={{ marginBottom: "36px" }}>
-          <FilterLabel>Focus di questa sessione</FilterLabel>
+          <FilterLabel>Settori & interessi da esplorare</FilterLabel>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "7px", marginBottom: "18px" }}>
             {FOCUS_AREAS.map(f => <Tag key={f.id} item={f} selected={selFocus.includes(f.id)} onClick={id => toggle(selFocus, setSelFocus, id)} />)}
           </div>
-          <FilterLabel>Vincoli aggiuntivi</FilterLabel>
+
+          {/* Campo libero */}
+          <div style={{ marginBottom: "18px" }}>
+            <FilterLabel>Aggiungi il tuo contesto (opzionale)</FilterLabel>
+            <textarea
+              value={customFocus}
+              onChange={e => setCustomFocus(e.target.value)}
+              placeholder="Es: sono appassionato di fotografia e ho già 500 follower su Instagram..."
+              rows={2}
+              style={{
+                width: "100%", padding: "10px 14px", borderRadius: "8px",
+                border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.03)",
+                color: "#f5f0e8", fontSize: "13px", fontFamily: "'Lora', serif",
+                outline: "none", resize: "vertical", lineHeight: "1.6",
+              }}
+            />
+          </div>
+
+          {/* Revenue slider */}
+          <div style={{ marginBottom: "18px", padding: "16px 20px", borderRadius: "10px", border: "1px solid rgba(74,222,128,0.15)", background: "rgba(74,222,128,0.03)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+              <FilterLabel>Revenue netta target (dopo spese)</FilterLabel>
+              <span style={{ fontSize: "13px", fontFamily: "'IBM Plex Mono', monospace", color: "#4ade80", fontWeight: 700 }}>{revenueLabel}</span>
+            </div>
+            <input
+              type="range"
+              min={0}
+              max={REVENUE_STEPS.length - 1}
+              step={1}
+              value={sliderIndex === -1 ? 0 : sliderIndex}
+              onChange={e => setRevenueTarget(REVENUE_STEPS[parseInt(e.target.value)])}
+            />
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: "6px" }}>
+              {REVENUE_STEPS.map(s => (
+                <span key={s} style={{ fontSize: "9px", fontFamily: "'IBM Plex Mono', monospace", color: revenueTarget === s ? "rgba(74,222,128,0.8)" : "rgba(255,255,255,0.2)" }}>
+                  {s >= 10000 ? "10k+" : `${s/1000}k`}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <FilterLabel>Vincoli operativi</FilterLabel>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "7px" }}>
             {CONSTRAINTS.map(c => <Tag key={c.id} item={c} selected={selConstraints.includes(c.id)} onClick={id => toggle(selConstraints, setSelConstraints, id)} />)}
           </div>
